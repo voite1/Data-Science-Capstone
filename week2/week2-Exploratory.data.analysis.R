@@ -27,23 +27,24 @@ conn <- file('./final/en_US/en_US.blogs.txt', 'r')
 blogs <- readLines(conn, encoding="UTF-8", skipNul=TRUE)
 close(conn)
 
+## convert to ascii
+blogs <- iconv(blogs, "UTF-8", "ASCII", sub="")
+
 ## Read news file
 conn <- file('./final/en_US/en_US.news.txt', 'rb')
-news <- readLines(conn, skipNul=TRUE)
+news <- readLines(conn, encoding="UTF-8", skipNul=TRUE)
 close(conn)
+
+## convert to ascii
+news <- news(blogs, "UTF-8", "ASCII", sub="")
 
 ## Read twitter file
 conn <- file('./final/en_US/en_US.twitter.txt', 'r')
 twitter <- readLines(conn, encoding="latin1", skipNul=TRUE)
 close(conn)
 
-## Convert twitter data to UTF-8 encoding
-twitter <- iconv(twitter, from = "latin1", to = "UTF-8", sub="")
-
-## remove non UTF-8 characters
-library(stringi)
-
-twitter <- stri_replace_all_regex(twitter, "\u2019|\u201c|\u201d|u201f|``|`",'"')
+## Convert to ascii
+twitter <- iconv(twitter, from = "latin1", to = "ASCII", sub="")
 
 ## Cleanup data file names and connections
 rm(conn, datafile)
@@ -65,13 +66,13 @@ length(twitter)
 ## Reduce the data side by sampling for further analysis
 library(caTools)
 
-indx <- sample.split(blogs,SplitRatio= .004, group=NULL)
+indx <- sample.split(blogs,SplitRatio= .005, group=NULL)
 blogs <- blogs[indx]
 
-indx <- sample.split(news,SplitRatio =.004, group=NULL)
+indx <- sample.split(news,SplitRatio =.005, group=NULL)
 news <- news[indx]
 
-indx <- sample.split(twitter,SplitRatio= .004, group=NULL)
+indx <- sample.split(twitter,SplitRatio= .005, group=NULL)
 twitter <- twitter[indx]
 
 ## cleanup 
