@@ -7,9 +7,9 @@ output: html_document
 
 # Executive Summary
 
-This is a milestone report prepared for the Data Science Capstone course offered by Coursera. The goal of this project is to build a word-prediction model and a Shiny application to employ the model developed. The application will take either one, two, or three words and display prediction of the next word. This Milestone Report covers exploratory data analysis conducted on the small subset of the data supplied for the project.  This reportalso details creation and combinatios of mutliple corpora, generation of TermDocumentMatrix objects and finally, creation of data frames for unigrams, bigrams, trigrams, and fourgrams.
+This is a milestone report prepared for the Data Science Capstone course offered by Coursera. The goal of this project is to build a word-prediction model and a Shiny application to employ the model developed. The application will take either one, two, or three words and display prediction of the next word. This Milestone Report covers exploratory data analysis conducted on the small subset of the data supplied for the project.  This report also details creation and combinations of multiple corpora, generation of TermDocumentMatrix objects and finally, creation of data frames for unigrams, bigrams, trigrams, and fourgrams.
 
-# Obtaining and loading data
+# Obtaining and Loading Data
 
 The code below shows the details of downloading the data, uncompressing the data, and loading english dictionary data into R objects for the purposes of the exploratory data analysis.  The code is documented providing detailed explanation of the activities performed in the code.
 
@@ -67,7 +67,7 @@ rm(conn, datafile)
 
 # File Level Statistics
 
-The code below show the basic stats about the files and object loaded.  The code is documented providing detailed explanation of the activities performed in the code.
+The code below shows the basic stats about the files and object loaded.  I employed simple **wc** command to display the number of lines, words, and characters in each file.  I confirm the line counts by displaying line count of loaded data sets.  The code is documented providing detailed explanation of the activities performed in the code. 
 
 ```{r}
 ############################### BASIC STATS ###############################################
@@ -108,7 +108,7 @@ rm(indx)
 
 # Use RWeka Library to Build and Process Corpus
 
-Using RWeka library, the sample files below are processed into three separate corpora and combined into a single corpus for further processing.  The code is documented providing detailed explanation of the activities performed in the code.
+Using RWeka library, the sample files below are processed into three separate corpora and combined into a single corpus for further processing.  The corpus created allows for usage of RWeka library to create TermDocumentMatrix later on in the code. TermDocumentMatrix, in turn, will be used to generate data frame containing n-grams of size 1, 2, 3, and 4.  The code is documented providing detailed explanation of the activities performed in the code.
 
 ```{r}
 ############################### CREATE CORPORA #############################################
@@ -127,7 +127,7 @@ data.c <- c(blogs.c, news.c, twitter.c)
 rm(twitter, news, blogs, twitter.c, blogs.c, news.c)
 ```
 
-There are number of things we can do to **data.c** corpus, such as removing punctuation, white space, numbers and etc..  The code below acheives all these tasks.  I have decided not to remove stop words.  The code is documented providing detailed explanation of the activities performed in the code.
+There are number of things we can do to **data.c** corpus, such as removing punctuation, white space, numbers and etc..  The code below acheives all these tasks.  I have decided not to remove stop words.  There are other, more efficient ways to clean text data that I will employ in the data file preprocessing when transforming datasets assigned for the capstone project.  The code is documented providing detailed explanation of the activities performed in the code.
 
 ```{r}
 ############################## CLEANUP DATA ################################################
@@ -140,7 +140,7 @@ data.c <- tm_map(data.c, removeNumbers)
 
 # Create TermDocumentMatrix Objects
 
-The purpose of the code below is to create TermDocumentMatrix objects for unigrams, bigrams, trigrams, and fourgrams.  Once TermDocumentMatrix is created, convert TermDocumentMatrix objects corresponding to n-grams into data frames containing two fields: item and Frequency, where item is an actual word and Frequency is the frequency of the word in the cominded data set.  The code is documented providing detailed explanation of the activities performed in the code.
+The purpose of the code below is to create TermDocumentMatrix objects for unigrams, bigrams, trigrams, and fourgrams.  Once TermDocumentMatrix is created, convert TermDocumentMatrix objects corresponding to n-grams into data frames containing two fields: item and Frequency, where item is an actual word and Frequency is the frequency of the word in the combined data set.  The code is documented providing detailed explanation of the activities performed in the code.
 
 ```{r}
 ############################### GENERATE AND TRANSFORM N-GRAMS FOR DISPLAY ###################
@@ -179,7 +179,7 @@ words3 <- buildDataFrame(tdm3)
 words4 <- buildDataFrame(tdm4)
 ```
 
-Sort data frames by Frequency in the decsending order and display first 20 most frequent words in each data fame.  The code is documented providing detailed explanation of the activities performed in the code.
+Sort data frames by Frequency in the decsending order and display first 20 most frequent words in each data fame.  Sorting data frame is the essential step that allows to filter out any number of most frequent n-grams contained in the data for the pjrect.  The code is documented providing detailed explanation of the activities performed in the code.
 
 ```{r}
 ## sort the dataframes by most used words for printing
@@ -198,7 +198,7 @@ head(words4, 20)
 
 # Plot Sample N-Grams
 
-The code below produces four plots of the 20 most frequent words listed above.The code is documented providing detailed explanation of the activities performed in the code.
+The code below produces four plots of the 20 most frequent words listed above.  I have chosen to use base plotting system of R for the exploratory data analysis.  Due to small sample size, the frequencies of the n-grams are lower than what would be observed in the larger sample.  The code is documented providing detailed explanation of the activities performed in the code.
 
 ```{r}
 ####################### visualize n-gram samples ###############################
@@ -236,4 +236,4 @@ When building the model, I will employ the following strategy:
 
 When building the shiny app, I will generage bigram, trigram, and fourgram data frames from the corresponding data files that I will create during the pre-processing of the supplied data.  Once the files are loaded, for every user request, I will run an algorythm that would determine the next word for one, two, or three words supplied.  I will emphasize utility vs. visual esthetics.
 
-I will need to work on the data preprocessing to speed up the proccess.
+I will need to work on the data preprocessing to speed up the proccess.  I am planning to get a list of 100,000 most frequent n-grams from each of the data sets generated to reduce the file size.  I will use files containing 100,000 n-grams for the actual application.
