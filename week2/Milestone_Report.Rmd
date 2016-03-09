@@ -1,0 +1,239 @@
+---
+title: 'Data Science Capstone: Milestone Report'
+author: "A. Kramer"
+date: "March 12, 2016"
+output: html_document
+---
+
+# Executive Summary
+
+This is a milestone report prepared for the Data Science Capstone course offered by Coursera. The goal of this project is to build a word-prediction model and a Shiny application to employ the model developed. The application will take either one, two, or three words and display prediction of the next word. This Milestone Report covers exploratory data analysis conducted on the small subset of the data supplied for the project.  This reportalso details creation and combinatios of mutliple corpora, generation of TermDocumentMatrix objects and finally, creation of data frames for unigrams, bigrams, trigrams, and fourgrams.
+
+# Obtaining and loading data
+
+The code below shows the details of downloading the data, uncompressing the data, and loading english dictionary data into R objects for the purposes of the exploratory data analysis.  The code is documented providing detailed explanation of the activities performed in the code.
+
+```{r}
+# Set working directory
+setwd("C:\\Users\\Aleksey\\Documents\\School\\coursera\\Data Science Capstone\\week2")
+
+## Set seed
+set.seed(63545)
+
+############################### GET DATA ####################################################
+
+## Get the data
+datafile <- 'https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip'
+
+## Download file if not exists
+if(!file.exists('Coursera-SwiftKey.zip')) {
+    download.file(datafile, 'Coursera-SwiftKey.zip')
+}
+
+## Unzip downloaded file if not already unzipped
+if(!file.exists('final')) {
+    unzip('./Coursera-SwiftKey.zip')
+}
+
+############################### LOAD DATA ##################################################
+
+## Read blogs file
+conn <- file('./final/en_US/en_US.blogs.txt', 'r')
+blogs <- readLines(conn, encoding="UTF-8", skipNul=TRUE)
+close(conn)
+
+## convert to ascii
+blogs <- iconv(blogs, "UTF-8", "ASCII", sub="")
+
+## Read news file
+conn <- file('./final/en_US/en_US.news.txt', 'rb')
+news <- readLines(conn, encoding="UTF-8", skipNul=TRUE)
+close(conn)
+
+## convert to ascii
+news <- iconv(news, "UTF-8", "ASCII", sub="")
+
+## Read twitter file
+conn <- file('./final/en_US/en_US.twitter.txt', 'r')
+twitter <- readLines(conn, encoding="latin1", skipNul=TRUE)
+close(conn)
+
+## Convert to ascii
+twitter <- iconv(twitter, from = "latin1", to = "ASCII", sub="")
+
+## Cleanup data file names and connections
+rm(conn, datafile)
+```
+
+# File Level Statistics
+
+The code below show the basic stats about the files and object loaded.  The code is documented providing detailed explanation of the activities performed in the code.
+
+```{r}
+############################### BASIC STATS ###############################################
+
+## Count number of lines, words, and characters in files and display results to the users
+system("wc ./final/en_US/en_US.blogs.txt",intern=TRUE)
+system("wc ./final/en_US/en_US.news.txt",intern=TRUE)
+system("wc ./final/en_US/en_US.twitter.txt",intern=TRUE)
+
+## Display number of lines in loaded files
+length(blogs) 
+length(news)
+length(twitter)
+```
+
+# Create Sample Data Sets (Observations)
+
+The next step is to create a manageable data set to work on my old i5 core, 64bit computer.  My computer cannot process large amounts of data efficiently.  Thus a sample size of 1% was selected.  The code is documented providing detailed explanation of the activities performed in the code.  Additionally, I have tried processing 15% of data on i7 core computer and failed to complete processing in a reasonable amount of time.  The data sets are very large.
+
+```{R}
+############################### SAMPLING DATA ##############################################
+
+## Reduce the data side by sampling for further analysis
+library(caTools, quietly=TRUE)
+
+indx <- sample.split(blogs,SplitRatio= .01, group=NULL)
+blogs <- blogs[indx]
+
+indx <- sample.split(news,SplitRatio =.01, group=NULL)
+news <- news[indx]
+
+indx <- sample.split(twitter,SplitRatio= .01, group=NULL)
+twitter <- twitter[indx]
+
+## cleanup 
+rm(indx)
+```
+
+# Use RWeka Library to Build and Process Corpus
+
+Using RWeka library, the sample files below are processed into three separate corpora and combined into a single corpus for further processing.  The code is documented providing detailed explanation of the activities performed in the code.
+
+```{r}
+############################### CREATE CORPORA #############################################
+library(tm, quietly=TRUE)
+library(RWeka, quietly=TRUE)
+library(slam, quietly=TRUE)
+
+blogs.c <- VCorpus(VectorSource(blogs))
+news.c <- VCorpus(VectorSource(news))
+twitter.c <- VCorpus(VectorSource(twitter))
+
+## Merge corpora
+data.c <- c(blogs.c, news.c, twitter.c)
+
+## cleanup
+rm(twitter, news, blogs, twitter.c, blogs.c, news.c)
+```
+
+There are number of things we can do to **data.c** corpus, such as removing punctuation, white space, numbers and etc..  The code below acheives all these tasks.  I have decided not to remove stop words.  The code is documented providing detailed explanation of the activities performed in the code.
+
+```{r}
+############################## CLEANUP DATA ################################################
+
+data.c <- tm_map(data.c, stripWhitespace)
+data.c <- tm_map(data.c, content_transformer(tolower))
+data.c <- tm_map(data.c, removePunctuation)
+data.c <- tm_map(data.c, removeNumbers)  
+```
+
+# Create TermDocumentMatrix Objects
+
+The purpose of the code below is to create TermDocumentMatrix objects for unigrams, bigrams, trigrams, and fourgrams.  Once TermDocumentMatrix is created, convert TermDocumentMatrix objects corresponding to n-grams into data frames containing two fields: item and Frequency, where item is an actual word and Frequency is the frequency of the word in the cominded data set.  The code is documented providing detailed explanation of the activities performed in the code.
+
+```{r}
+############################### GENERATE AND TRANSFORM N-GRAMS FOR DISPLAY ###################
+
+UnigramTokenizer <- function(x) { RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 1, max = 1)) }
+BigramTokenizer <- function(x) { RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 2, max = 2)) }
+TrigramTokenizer <- function(x) { RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 3, max = 3)) }
+ForgramTokenizer <- function(x) { RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 4, max = 4)) }
+
+## convert docmatrix to a dataframe with word and freq
+buildDataFrame <- function(x) {
+    # Get the sum by row
+    item <- as.data.frame(slam::row_sums(x, na.rm=T))
+    
+    # Name the column of frequencies
+    colnames(item)<- "Frequency"
+    
+    # Build data frame
+    item <- cbind(item = rownames(item),item)
+    
+    # Remove rownames from data frame
+    rownames(item) <- NULL
+    
+    # Return data frame
+    item
+}
+
+tdm <- TermDocumentMatrix(data.c, control=list(tokenize = UnigramTokenizer))
+tdm2 <- TermDocumentMatrix(data.c, control=list(tokenize = BigramTokenizer))
+tdm3 <- TermDocumentMatrix(data.c, control=list(tokenize = TrigramTokenizer))
+tdm4 <- TermDocumentMatrix(data.c, control=list(tokenize = ForgramTokenizer))
+
+words <- buildDataFrame(tdm)
+words2 <- buildDataFrame(tdm2)
+words3 <- buildDataFrame(tdm3)
+words4 <- buildDataFrame(tdm4)
+```
+
+Sort data frames by Frequency in the decsending order and display first 20 most frequent words in each data fame.  The code is documented providing detailed explanation of the activities performed in the code.
+
+```{r}
+## sort the dataframes by most used words for printing
+words <- words[order(-words$Frequency),]
+head(words, 20)
+
+words2 <- words2[order(-words2$Frequency),]
+head(words2, 20)
+
+words3 <- words3[order(-words3$Frequency),]
+head(words3, 20)
+
+words4 <- words4[order(-words4$Frequency),]
+head(words4, 20)
+```
+
+# Plot Sample N-Grams
+
+The code below produces four plots of the 20 most frequent words listed above.The code is documented providing detailed explanation of the activities performed in the code.
+
+```{r}
+####################### visualize n-gram samples ###############################
+
+# creating data frames containing most frequent words
+words_to_print <- words[1:20,]
+words2_to_print <- words2[1:20,]
+words3_to_print <- words3[1:20,]
+words4_to_print <- words4[1:20,]
+
+# plot the data from the data frames above
+plot(words_to_print$Frequency, type="h", main="Unigrams", 
+     xlab="Words", ylab="Frequencies",
+     xlim=c(1, 20), ylim=c(0, 50000))
+
+plot(words2_to_print$Frequency, type="h", main="Bigrams", 
+     xlab="Words", ylab="Frequencies",
+     xlim=c(1, 20), ylim=c(0, 5000))
+
+plot(words3_to_print$Frequency, type="h", main="Trigrams", 
+     xlab="Words", ylab="Frequencies",
+     xlim=c(1, 20), ylim=c(0, 500))
+
+plot(words4_to_print$Frequency, type="h", main="Fourgrams", 
+     xlab="Words", ylab="Frequencies",
+     xlim=c(1, 20), ylim=c(0, 100))
+```
+
+# Building Predition Model and the Final App
+
+When building the model, I will employ the following strategy:
+1. If one word is suppled, search bigram data frame for the line starting from a supplied word, get the subset of data frame containing bigrams starting with the supplied word, and return the most frequently occuring bigram.
+2. If two words are supplied, search trigram data frame for the line starting from the words supplied, get the subset of data frame containing trigrams starting with two supplied words, and return the most frequently occuring trigram.
+3. If three words are supplied, search fourgram data frame for the line starting from the words supplied, get teh subset of data frame containing fourgrams starting with the three words supplied, and return the most frequently occuring fourgram.
+
+When building the shiny app, I will generage bigram, trigram, and fourgram data frames from the corresponding data files that I will create during the pre-processing of the supplied data.  Once the files are loaded, for every user request, I will run an algorythm that would determine the next word for one, two, or three words supplied.  I will emphasize utility vs. visual esthetics.
+
+I will need to work on the data preprocessing to speed up the proccess.
