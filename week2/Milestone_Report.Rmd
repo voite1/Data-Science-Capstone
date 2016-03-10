@@ -234,6 +234,23 @@ When building the model, I will employ the following strategy:
 2. If two words are supplied, search trigram data frame for the line starting from the words supplied, get the subset of data frame containing trigrams starting with two supplied words, and return the most frequently occuring trigram.
 3. If three words are supplied, search fourgram data frame for the line starting from the words supplied, get teh subset of data frame containing fourgrams starting with the three words supplied, and return the most frequently occuring fourgram.
 
+For the words that are not in the dictionary, I will try to use the synonyms() function provided by the **qdap** package.  The synonyms() call return a list of lists containing synonyms of the word. I will used obtained synonym to search the dictionary.  I will use the last word of the phrase supplied by the to look for the synonyms and to find matching word in the bi-gram data file. If the match is not found, I will inform the user that there is no match.
+
 When building the shiny app, I will generage bigram, trigram, and fourgram data frames from the corresponding data files that I will create during the pre-processing of the supplied data.  Once the files are loaded, for every user request, I will run an algorythm that would determine the next word for one, two, or three words supplied.  I will emphasize utility vs. visual esthetics.
 
-I will need to work on the data preprocessing to speed up the proccess.  I am planning to get a list of 100,000 most frequent n-grams from each of the data sets generated to reduce the file size.  I will use files containing 100,000 n-grams for the actual application.
+```{r}
+library(qdap, quietly=TRUE)
+
+# Example of using synonyms call
+
+synonyms('cook')
+
+temp <- synonyms('cook')
+
+print(temp[[1]][1])
+```
+
+I will need to work on the data preprocessing to speed up the proccess.  I am planning to get a list of 100,000 most frequent n-grams from each of the data sets generated to reduce the file size.  I will use files containing 100,000 n-grams for the actual application. The subset, despite having fairly limited number of n-grams, will be a fairly good representation of the most common words in the English language.  However, as the n-gram size grows, the selection of matching n-grams becomes limited.
+
+However, this is just a plan.  I may use alternative approach based more on statistics rather than on text searchers.
+

@@ -70,10 +70,10 @@ img {
 
 <div id="executive-summary" class="section level1">
 <h1>Executive Summary</h1>
-<p>This is a milestone report prepared for the Data Science Capstone course offered by Coursera. The goal of this project is to build a word-prediction model and a Shiny application to employ the model developed. The application will take either one, two, or three words and display prediction of the next word. This Milestone Report covers exploratory data analysis conducted on the small subset of the data supplied for the project. This reportalso details creation and combinatios of mutliple corpora, generation of TermDocumentMatrix objects and finally, creation of data frames for unigrams, bigrams, trigrams, and fourgrams.</p>
+<p>This is a milestone report prepared for the Data Science Capstone course offered by Coursera. The goal of this project is to build a word-prediction model and a Shiny application to employ the model developed. The application will take either one, two, or three words and display prediction of the next word. This Milestone Report covers exploratory data analysis conducted on the small subset of the data supplied for the project. This report also details creation and combinations of multiple corpora, generation of TermDocumentMatrix objects and finally, creation of data frames for unigrams, bigrams, trigrams, and fourgrams.</p>
 </div>
 <div id="obtaining-and-loading-data" class="section level1">
-<h1>Obtaining and loading data</h1>
+<h1>Obtaining and Loading Data</h1>
 <p>The code below shows the details of downloading the data, uncompressing the data, and loading english dictionary data into R objects for the purposes of the exploratory data analysis. The code is documented providing detailed explanation of the activities performed in the code.</p>
 <pre class="r"><code># Set working directory
 setwd(&quot;C:\\Users\\Aleksey\\Documents\\School\\coursera\\Data Science Capstone\\week2&quot;)
@@ -127,7 +127,7 @@ rm(conn, datafile)</code></pre>
 </div>
 <div id="file-level-statistics" class="section level1">
 <h1>File Level Statistics</h1>
-<p>The code below show the basic stats about the files and object loaded. The code is documented providing detailed explanation of the activities performed in the code.</p>
+<p>The code below shows the basic stats about the files and object loaded. I employed simple <strong>wc</strong> command to display the number of lines, words, and characters in each file. I confirm the line counts by displaying line count of loaded data sets. The code is documented providing detailed explanation of the activities performed in the code.</p>
 <pre class="r"><code>############################### BASIC STATS ###############################################
 
 ## Count number of lines, words, and characters in files and display results to the users
@@ -167,7 +167,7 @@ rm(indx)</code></pre>
 </div>
 <div id="use-rweka-library-to-build-and-process-corpus" class="section level1">
 <h1>Use RWeka Library to Build and Process Corpus</h1>
-<p>Using RWeka library, the sample files below are processed into three separate corpora and combined into a single corpus for further processing. The code is documented providing detailed explanation of the activities performed in the code.</p>
+<p>Using RWeka library, the sample files below are processed into three separate corpora and combined into a single corpus for further processing. The corpus created allows for usage of RWeka library to create TermDocumentMatrix later on in the code. TermDocumentMatrix, in turn, will be used to generate data frame containing n-grams of size 1, 2, 3, and 4. The code is documented providing detailed explanation of the activities performed in the code.</p>
 <pre class="r"><code>############################### CREATE CORPORA #############################################
 library(tm, quietly=TRUE)</code></pre>
 <pre><code>## Warning: package 'tm' was built under R version 3.2.3</code></pre>
@@ -190,7 +190,7 @@ data.c &lt;- c(blogs.c, news.c, twitter.c)
 
 ## cleanup
 rm(twitter, news, blogs, twitter.c, blogs.c, news.c)</code></pre>
-<p>There are number of things we can do to <strong>data.c</strong> corpus, such as removing punctuation, white space, numbers and etc.. The code below acheives all these tasks. I have decided not to remove stop words. The code is documented providing detailed explanation of the activities performed in the code.</p>
+<p>There are number of things we can do to <strong>data.c</strong> corpus, such as removing punctuation, white space, numbers and etc.. The code below acheives all these tasks. I have decided not to remove stop words. There are other, more efficient ways to clean text data that I will employ in the data file preprocessing when transforming datasets assigned for the capstone project. The code is documented providing detailed explanation of the activities performed in the code.</p>
 <pre class="r"><code>############################## CLEANUP DATA ################################################
 
 data.c &lt;- tm_map(data.c, stripWhitespace)
@@ -200,7 +200,7 @@ data.c &lt;- tm_map(data.c, removeNumbers)  </code></pre>
 </div>
 <div id="create-termdocumentmatrix-objects" class="section level1">
 <h1>Create TermDocumentMatrix Objects</h1>
-<p>The purpose of the code below is to create TermDocumentMatrix objects for unigrams, bigrams, trigrams, and fourgrams. Once TermDocumentMatrix is created, convert TermDocumentMatrix objects corresponding to n-grams into data frames containing two fields: item and Frequency, where item is an actual word and Frequency is the frequency of the word in the cominded data set. The code is documented providing detailed explanation of the activities performed in the code.</p>
+<p>The purpose of the code below is to create TermDocumentMatrix objects for unigrams, bigrams, trigrams, and fourgrams. Once TermDocumentMatrix is created, convert TermDocumentMatrix objects corresponding to n-grams into data frames containing two fields: item and Frequency, where item is an actual word and Frequency is the frequency of the word in the combined data set. The code is documented providing detailed explanation of the activities performed in the code.</p>
 <pre class="r"><code>############################### GENERATE AND TRANSFORM N-GRAMS FOR DISPLAY ###################
 
 UnigramTokenizer &lt;- function(x) { RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 1, max = 1)) }
@@ -235,7 +235,7 @@ words &lt;- buildDataFrame(tdm)
 words2 &lt;- buildDataFrame(tdm2)
 words3 &lt;- buildDataFrame(tdm3)
 words4 &lt;- buildDataFrame(tdm4)</code></pre>
-<p>Sort data frames by Frequency in the decsending order and display first 20 most frequent words in each data fame. The code is documented providing detailed explanation of the activities performed in the code.</p>
+<p>Sort data frames by Frequency in the decsending order and display first 20 most frequent words in each data fame. Sorting data frame is the essential step that allows to filter out any number of most frequent n-grams contained in the data for the pjrect. The code is documented providing detailed explanation of the activities performed in the code.</p>
 <pre class="r"><code>## sort the dataframes by most used words for printing
 words &lt;- words[order(-words$Frequency),]
 head(words, 20)</code></pre>
@@ -332,7 +332,7 @@ head(words4, 20)</code></pre>
 </div>
 <div id="plot-sample-n-grams" class="section level1">
 <h1>Plot Sample N-Grams</h1>
-<p>The code below produces four plots of the 20 most frequent words listed above.The code is documented providing detailed explanation of the activities performed in the code.</p>
+<p>The code below produces four plots of the 20 most frequent words listed above. I have chosen to use base plotting system of R for the exploratory data analysis. Due to small sample size, the frequencies of the n-grams are lower than what would be observed in the larger sample. The code is documented providing detailed explanation of the activities performed in the code.</p>
 <pre class="r"><code>####################### visualize n-gram samples ###############################
 
 # creating data frames containing most frequent words
@@ -362,8 +362,11 @@ plot(words_to_print$Frequency, type=&quot;h&quot;, main=&quot;Unigrams&quot;,
 <div id="building-predition-model-and-the-final-app" class="section level1">
 <h1>Building Predition Model and the Final App</h1>
 <p>When building the model, I will employ the following strategy: 1. If one word is suppled, search bigram data frame for the line starting from a supplied word, get the subset of data frame containing bigrams starting with the supplied word, and return the most frequently occuring bigram. 2. If two words are supplied, search trigram data frame for the line starting from the words supplied, get the subset of data frame containing trigrams starting with two supplied words, and return the most frequently occuring trigram. 3. If three words are supplied, search fourgram data frame for the line starting from the words supplied, get teh subset of data frame containing fourgrams starting with the three words supplied, and return the most frequently occuring fourgram.</p>
+<p>For the words that are not in the dictionary, I will try to use the synonyms() function provided by the <strong>qdap</strong> package. The synonyms() call return a list of lists containing synonyms of the word. I will used obtained synonym to search the dictionary. I will use the last word of the phrase supplied by the to look for the synonyms and to find matching word in the bi-gram data file. If the match is not found, I will inform the user that there is no match.</p>
 <p>When building the shiny app, I will generage bigram, trigram, and fourgram data frames from the corresponding data files that I will create during the pre-processing of the supplied data. Once the files are loaded, for every user request, I will run an algorythm that would determine the next word for one, two, or three words supplied. I will emphasize utility vs. visual esthetics.</p>
-<p>I will need to work on the data preprocessing to speed up the proccess.</p>
+<p>I will need to work on the data preprocessing to speed up the proccess. I am planning to get a list of 100,000 most frequent n-grams from each of the data sets generated to reduce the file size. I will use files containing 100,000 n-grams for the actual application. The subset, despite having fairly limited number of n-grams, will be a fairly good representation of the most common words in the English language. However, as the n-gram size grows, the selection of matching n-grams becomes limited.</p>
+<pre class="r"><code>print(&quot;.&quot;)</code></pre>
+<pre><code>## [1] &quot;.&quot;</code></pre>
 </div>
 
 
