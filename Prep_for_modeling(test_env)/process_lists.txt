@@ -1,0 +1,8 @@
+> sentences <- c("Jane saw a cat", "Jane sat down")
+> word(sentences, 1)
+[1] "Jane" "Jane"
+> g <- word(sentences, 1)
+> g
+[1] "Jane" "Jane"
+> str(g)
+ chr [1:2] "Jane" "Jane"
