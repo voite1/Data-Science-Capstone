@@ -254,3 +254,9 @@ I will need to work on the data preprocessing to speed up the proccess.  I am pl
 
 However, this is just a plan.  I may use alternative approach based more on statistics rather than on text searchers.
 
+# References
+
+1. [R and Data Science Reference] [https://github.com/lgreski/datasciencectacontent], last accessed 03/11/2016
+2. [Survival Guied to Data Science with R] [http://togaware.com/onepager/], last accessed 03/11/2015
+3. [Presentation by M. H. Nierhoff] [https://rpubs.com/nierhoff/cdsc], last accessed 03/11/2015
+
