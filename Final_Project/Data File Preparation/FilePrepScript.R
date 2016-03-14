@@ -114,6 +114,19 @@ corpus <- VCorpus(x=files)
 # Clean corpus: function to remove specified patterns
 toSpace <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
 
+# Clean corpus: function to remove substitute patterns
+translate <- content_transformer(function(x, pattern, sub_pattern) gsub(pattern, sub_pattern, x))
+
+# Get build the list of profanity words
+conn <- file("./profanity_list.txt")
+profanity <- readLines(conn, encoding="UTF-8", skipNul=TRUE)
+close(conn)
+
+# remove "" from profanity and add 'NA' to profanity list
+# it appears when encoding original files, many "NA" lines werer generated
+length(profanity) <- length(profanity) -1
+profanity <- c(profanity, "NA")
+
 # Clean corpus removing text that is not needed
 corpus <- tm_map(corpus, toSpace, "/")
 corpus <- tm_map(corpus, toSpace, "@")
@@ -121,9 +134,72 @@ corpus <- tm_map(corpus, toSpace,"\\|")
 corpus <- tm_map(corpus, toSpace, "<")
 corpus <- tm_map(corpus, toSpace, ">")
 corpus <- tm_map(corpus, content_transformer(tolower))
+
+# Expand English contractions
+corpus <- tm_map(corpus, translate, "couldn't", "could not")
+corpus <- tm_map(corpus, translate, "didn't", "did not")
+corpus <- tm_map(corpus, translate, "doesn't", "does not")
+corpus <- tm_map(corpus, translate, "don't", "do not")
+corpus <- tm_map(corpus, translate, "hadn't", "had not")
+corpus <- tm_map(corpus, translate, "hasn't", "has not")
+corpus <- tm_map(corpus, translate, "haven't", "have not")
+corpus <- tm_map(corpus, translate, "he's", "he is")
+corpus <- tm_map(corpus, translate, "how'd", "how did")
+corpus <- tm_map(corpus, translate, "how's", "how is")
+corpus <- tm_map(corpus, translate, "i'd", "i would")
+corpus <- tm_map(corpus, translate, "i'll", "i will")
+corpus <- tm_map(corpus, translate, "i'm", "i am")
+corpus <- tm_map(corpus, translate, "i've", "i have")
+corpus <- tm_map(corpus, translate, "isn't", "is not")
+corpus <- tm_map(corpus, translate, "it'd", "it would")
+corpus <- tm_map(corpus, translate, "it'll", "it will")
+corpus <- tm_map(corpus, translate, "it's", "it is")
+corpus <- tm_map(corpus, translate, "mayn't", "may not")
+corpus <- tm_map(corpus, translate, "might've", "might have")
+corpus <- tm_map(corpus, translate, "mightn't", "might not")
+corpus <- tm_map(corpus, translate, "must've", "must have")
+corpus <- tm_map(corpus, translate, "mustn't", "must not")
+corpus <- tm_map(corpus, translate, "needn't", "need not")
+corpus <- tm_map(corpus, translate, "shan't", "shall not")
+corpus <- tm_map(corpus, translate, "she'd", "she would")
+corpus <- tm_map(corpus, translate, "she'll", "she will")
+corpus <- tm_map(corpus, translate, "she's", "she is")
+corpus <- tm_map(corpus, translate, "should've", "should have")
+corpus <- tm_map(corpus, translate, "shouldn't", "should not")
+corpus <- tm_map(corpus, translate, "so's", "so is")
+corpus <- tm_map(corpus, translate, "that's", "that is")
+corpus <- tm_map(corpus, translate, "there's", "there is")
+corpus <- tm_map(corpus, translate, "they'll", "they will")
+corpus <- tm_map(corpus, translate, "they're", "they are")
+corpus <- tm_map(corpus, translate, "wasn't", "was not")
+corpus <- tm_map(corpus, translate, "we'd", "we would")
+corpus <- tm_map(corpus, translate, "we'll", "we will")
+corpus <- tm_map(corpus, translate, "we're", "we are")
+corpus <- tm_map(corpus, translate, "we've", "we have")
+corpus <- tm_map(corpus, translate, "weren't", "were not")
+corpus <- tm_map(corpus, translate, "what're", "what are")
+corpus <- tm_map(corpus, translate, "what's", "what is")
+corpus <- tm_map(corpus, translate, "what've", "what have")
+corpus <- tm_map(corpus, translate, "when's", "when is")
+corpus <- tm_map(corpus, translate, "where's", "where is")
+corpus <- tm_map(corpus, translate, "who'll", "who will")
+corpus <- tm_map(corpus, translate, "who's", "who is")
+corpus <- tm_map(corpus, translate, "why's", "why is")
+corpus <- tm_map(corpus, translate, "won't", "will not")
+corpus <- tm_map(corpus, translate, "won't've", "will not have")
+corpus <- tm_map(corpus, translate, "would've", "would have")
+corpus <- tm_map(corpus, translate, "wouldn't", "would not")
+corpus <- tm_map(corpus, translate, "wouldn't've", "would not have")
+corpus <- tm_map(corpus, translate, "you'll", "you will")
+corpus <- tm_map(corpus, translate, "you're", "you are")
+
+# Remove NA on a single lines
+corpus <- tm_map(corpus, translate, "^NA$", " ")
+
+# Remove punctuation, numbers and profanity
 corpus <- tm_map(corpus, removeNumbers)
 corpus <- tm_map(corpus, removePunctuation)
-corpus <- tm_map(corpus, removeWords, c("NA"))
+corpus <- tm_map(corpus, removeWords, profanity)
 # corpus <- tm_map(corpus, function(x) removeWords(x, stopwords("english")))
 # corpus <- tm_map(corpus, stemDocument, language = "english")
 corpus <- tm_map(corpus, stripWhitespace)
@@ -144,6 +220,10 @@ tdm2 <- TermDocumentMatrix(corpus, control=list(tokenize = BigramTokenizer,
 # Remove sparse terms
 tdm2 <- removeSparseTerms(tdm2, 0.10)
 
+# Clean java heap
+detach("package:RWeka", unload=TRUE)
+library(RWeka, quietly=TRUE)
+
 # Create TDM for tri-grams
 tdm3 <- TermDocumentMatrix(corpus, control=list(tokenize = TrigramTokenizer,
                                                 removePunctuation = TRUE,
@@ -151,12 +231,19 @@ tdm3 <- TermDocumentMatrix(corpus, control=list(tokenize = TrigramTokenizer,
 # Remove Sparse ters
 tdm3 <- removeSparseTerms(tdm3, 0.10)
 
+# Clean java heap
+detach("package:RWeka", unload=TRUE)
+library(RWeka, quietly=TRUE)
+
 # Create TDM for tri-grams
 tdm4 <- TermDocumentMatrix(corpus, control=list(tokenize = QuadgramTokenizer,
                                                 removePunctuation = TRUE,
                                                 removeNumbers = TRUE))
 # Remove Sparse ters
 tdm4 <- removeSparseTerms(tdm4, 0.10)
+
+# Clean java heap
+detach("package:RWeka", unload=TRUE)
 
 
 ################## Building data frames #################################
@@ -205,9 +292,9 @@ write.csv(quadgramDF, "./data_frames/quadgrams.csv", row.names=FALSE)
 
 ################## Transform data frames to have word per column ##########
 
-bigrams <- read.csv("./data_frames/bigrams.csv")
-trigrams <- read.csv("./data_frames/trigrams.csv")
-quadgrams <- read.csv("./data_frames/quadgrams.csv")
+bigrams <- read.csv("./data_frames/bigrams.csv", stringsAsFactors=FALSE)
+trigrams <- read.csv("./data_frames/trigrams.csv", stringsAsFactors=FALSE)
+quadgrams <- read.csv("./data_frames/quadgrams.csv", stringsAsFactors=FALSE)
 
 library(stringr)
 
@@ -244,6 +331,14 @@ if(file.exists('data_frames_ready')) {
 write.csv(bigrams, "./data_frames_ready/bigrams.csv", row.names=FALSE)
 write.csv(trigrams, "./data_frames_ready/trigrams.csv", row.names=FALSE)
 write.csv(quadgrams, "./data_frames_ready/quadgrams.csv", row.names=FALSE)
+
+
+####### Cleanup workspace - removed unused variables ########################
+
+rm(bigramDF, trigramDF, quadgramDF, conn, corpus, files)
+rm(prediction, profanity, tdm2, tdm3, tdm4, w1, w2, w3)
+rm(BigramTokenizer, TrigramTokenizer, QuadgramTokenizer)
+rm(toSpace, translate, buildDataFrame)
 
 
 #### AT THIS POINT THE FILES FOR PREDITION ARE READY ########################
