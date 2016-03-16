@@ -7,11 +7,11 @@ output: html_document
 
 # Executive Summary
 
-This is a milestone report prepared for the Data Science Capstone course offered by Coursera. The goal of this project is to build a word-prediction model and a Shiny application to employ the model developed. The application will take either one, two, or three words and display prediction of the next word. This Milestone Report covers exploratory data analysis conducted on the small subset of the data supplied for the project.  This report also details creation and combinations of multiple corpora, generation of TermDocumentMatrix objects and finally, creation of data frames for unigrams, bigrams, trigrams, and fourgrams.
+This is a milestone report prepared for the final project of the Data Science Capstone course offered by Coursera. The goal of this project is to build a word-prediction model and a Shiny application to employ the model developed. The application will take either one, two, or three words and display prediction of the next word. This Milestone Report covers exploratory data analysis conducted on a small subset of the data supplied for the project.  This report also details creation and combinations of multiple corpora, generation of TermDocumentMatrix objects and finally, creation of data frames for unigrams, bigrams, trigrams, and quadgrams.
 
 # Obtaining and Loading Data
 
-The code below shows the details of downloading the data, uncompressing the data, and loading english dictionary data into R objects for the purposes of the exploratory data analysis.  The code is documented providing detailed explanation of the activities performed in the code.
+The code below details downloading text data, uncompressing the data, and loading english dictionary data into R objects for the purposes of the exploratory data analysis.  The code is self-documented providing detailed explanation of the activities performed in the code.
 
 ```{r}
 # Set working directory
@@ -19,6 +19,9 @@ setwd("C:\\Users\\Aleksey\\Documents\\School\\coursera\\Data Science Capstone\\w
 
 ## Set seed
 set.seed(63545)
+
+## Suppress warnings
+options(warn=-1)
 
 ############################### GET DATA ####################################################
 
@@ -67,10 +70,12 @@ rm(conn, datafile)
 
 # File Level Statistics
 
-The code below shows the basic stats about the files and object loaded.  I employed simple **wc** command to display the number of lines, words, and characters in each file.  I confirm the line counts by displaying line count of loaded data sets.  The code is documented providing detailed explanation of the activities performed in the code. 
+The code below shows the basic stats about the files and objects loaded.  I employed simple **wc** command to display the number of lines, words, and characters in each file.  I confirmed the line counts by displaying line count of loaded data sets and the count of line in the data files.  The code is self-documented providing detailed explanation of the activities performed in the code. 
 
 ```{r}
 ############################### BASIC STATS ###############################################
+## Suppress warnings
+options(warn=-1)
 
 ## Count number of lines, words, and characters in files and display results to the users
 system("wc ./final/en_US/en_US.blogs.txt",intern=TRUE)
@@ -85,10 +90,12 @@ length(twitter)
 
 # Create Sample Data Sets (Observations)
 
-The next step is to create a manageable data set to work on my old i5 core, 64bit computer.  My computer cannot process large amounts of data efficiently.  Thus a sample size of 1% was selected.  The code is documented providing detailed explanation of the activities performed in the code.  Additionally, I have tried processing 15% of data on i7 core computer and failed to complete processing in a reasonable amount of time.  The data sets are very large.
+The next step is to create a manageable data set to work on my old i5 core, 64bit computer.  My computer cannot process large amounts of data efficiently.  Thus a sample size of 1% was selected.  The code is self-documented providing detailed explanation of the activities performed in the code.  Additionally, I have tried processing 15% of data on i7 core computer and failed to complete processing in a reasonable amount of time.  The data sets are very large.
 
 ```{R}
 ############################### SAMPLING DATA ##############################################
+## Suppress warnings
+options(warn=-1)
 
 ## Reduce the data side by sampling for further analysis
 library(caTools, quietly=TRUE)
@@ -108,10 +115,13 @@ rm(indx)
 
 # Use RWeka Library to Build and Process Corpus
 
-Using RWeka library, the sample files below are processed into three separate corpora and combined into a single corpus for further processing.  The corpus created allows for usage of RWeka library to create TermDocumentMatrix later on in the code. TermDocumentMatrix, in turn, will be used to generate data frame containing n-grams of size 1, 2, 3, and 4.  The code is documented providing detailed explanation of the activities performed in the code.
+Using RWeka library, the sample files below are processed into three separate corpora and combined into a single corpus for further processing.  The corpus created allows for usage of RWeka library to create TermDocumentMatrix later on in the code. TermDocumentMatrix, in turn, will be used to generate data frame containing n-grams of size 1, 2, 3, and 4.  The code is self-documented providing detailed explanation of the activities performed in the code.
 
 ```{r}
 ############################### CREATE CORPORA #############################################
+## Suppress warnings
+options(warn=-1)
+
 library(tm, quietly=TRUE)
 library(RWeka, quietly=TRUE)
 library(slam, quietly=TRUE)
@@ -127,10 +137,12 @@ data.c <- c(blogs.c, news.c, twitter.c)
 rm(twitter, news, blogs, twitter.c, blogs.c, news.c)
 ```
 
-There are number of things we can do to **data.c** corpus, such as removing punctuation, white space, numbers and etc..  The code below acheives all these tasks.  I have decided not to remove stop words.  There are other, more efficient ways to clean text data that I will employ in the data file preprocessing when transforming datasets assigned for the capstone project.  The code is documented providing detailed explanation of the activities performed in the code.
+There are number of things we can do to **data.c** corpus, such as removing punctuation, white space, numbers and etc..  The code below acheives all these tasks.  I have decided not to remove stop words.  There are other, more efficient ways to clean text data that I will employ in the data file preprocessing when transforming datasets assigned for the capstone project: I will exand english contractions and remove profanities.  The code below is self-documented providing detailed explanation of the activities performed in the code.
 
 ```{r}
 ############################## CLEANUP DATA ################################################
+## Suppress warnings
+options(warn=-1)
 
 data.c <- tm_map(data.c, stripWhitespace)
 data.c <- tm_map(data.c, content_transformer(tolower))
@@ -140,10 +152,13 @@ data.c <- tm_map(data.c, removeNumbers)
 
 # Create TermDocumentMatrix Objects
 
-The purpose of the code below is to create TermDocumentMatrix objects for unigrams, bigrams, trigrams, and fourgrams.  Once TermDocumentMatrix is created, convert TermDocumentMatrix objects corresponding to n-grams into data frames containing two fields: item and Frequency, where item is an actual word and Frequency is the frequency of the word in the combined data set.  The code is documented providing detailed explanation of the activities performed in the code.
+The purpose of the code below is to create TermDocumentMatrix objects for unigrams, bigrams, trigrams, and fourgrams.  Once TermDocumentMatrix is created, convert TermDocumentMatrix objects corresponding to n-grams into data frames containing two fields: item and Frequency, where item is an actual word and Frequency is the frequency of the word in the combined data set.  The code is self-documented providing detailed explanation of the activities performed in the code.
 
 ```{r}
 ############################### GENERATE AND TRANSFORM N-GRAMS FOR DISPLAY ###################
+
+## Suppress warnings
+options(warn=-1)
 
 UnigramTokenizer <- function(x) { RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 1, max = 1)) }
 BigramTokenizer <- function(x) { RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 2, max = 2)) }
@@ -183,6 +198,10 @@ Sort data frames by Frequency in the decsending order and display first 20 most 
 
 ```{r}
 ## sort the dataframes by most used words for printing
+
+## Suppress warnings
+options(warn=-1)
+
 words <- words[order(-words$Frequency),]
 head(words, 20)
 
@@ -202,6 +221,9 @@ The code below produces four plots of the 20 most frequent words listed above.  
 
 ```{r}
 ####################### visualize n-gram samples ###############################
+
+## Suppress warnings
+options(warn=-1)
 
 # creating data frames containing most frequent words
 words_to_print <- words[1:20,]
@@ -234,11 +256,14 @@ When building the model, I will employ the following strategy:
 2. If two words are supplied, search trigram data frame for the line starting from the words supplied, get the subset of data frame containing trigrams starting with two supplied words, and return the most frequently occuring trigram.
 3. If three words are supplied, search fourgram data frame for the line starting from the words supplied, get teh subset of data frame containing fourgrams starting with the three words supplied, and return the most frequently occuring fourgram.
 
-For the words that are not in the dictionary, I will try to use the synonyms() function provided by the **qdap** package.  The synonyms() call return a list of lists containing synonyms of the word. I will used obtained synonym to search the dictionary.  I will use the last word of the phrase supplied by the to look for the synonyms and to find matching word in the bi-gram data file. If the match is not found, I will inform the user that there is no match.
+For the words that are not in the dictionary, I plan to try to use the synonyms() function provided by the **qdap** package.  The synonyms() call return a list of lists containing synonyms of the word. I will used obtained synonym to search the dictionary.  I will use the last word of the phrase supplied by the to look for the synonyms and to find matching word in the bi-gram data file. If the match is not found, I will inform the user that there is no match.
 
-When building the shiny app, I will generage bigram, trigram, and fourgram data frames from the corresponding data files that I will create during the pre-processing of the supplied data.  Once the files are loaded, for every user request, I will run an algorythm that would determine the next word for one, two, or three words supplied.  I will emphasize utility vs. visual esthetics.
+When building the shiny app, I will generage bigram, trigram, and fourgram data frames from the corresponding data files that I will create during the pre-processing of the supplied data.  Once the files are loaded, for every user request, I will run an algorythm that would determine the next word for one, two, three, or more words supplied.  I will emphasize utility vs. visual esthetics.
 
 ```{r}
+## Suppress warnings
+options(warn=-1)
+
 library(qdap, quietly=TRUE)
 
 # Example of using synonyms call
@@ -248,15 +273,18 @@ synonyms('cook')
 temp <- synonyms('cook')
 
 print(temp[[1]][1])
+
+# Enable warninigs
+options(warn=0)
 ```
 
 I will need to work on the data preprocessing to speed up the proccess.  I am planning to get a list of 100,000 most frequent n-grams from each of the data sets generated to reduce the file size.  I will use files containing 100,000 n-grams for the actual application. The subset, despite having fairly limited number of n-grams, will be a fairly good representation of the most common words in the English language.  However, as the n-gram size grows, the selection of matching n-grams becomes limited.
 
-However, this is just a plan.  I may use alternative approach based more on statistics rather than on text searchers.
+However, this is just a plan.  I may use alternative approach based more on statistics rather than on text searchers. I feel there may be better appraoches. I think my old computer will not be able to process large enough sample, so I am planning on using about 10% of the data supplied in the data files. If hardware allows, I will use more data.
 
 # References
 
-1. [R and Data Science Reference] [https://github.com/lgreski/datasciencectacontent], last accessed 03/11/2016
-2. [Survival Guied to Data Science with R] [http://togaware.com/onepager/], last accessed 03/11/2015
-3. [Presentation by M. H. Nierhoff] [https://rpubs.com/nierhoff/cdsc], last accessed 03/11/2015
+1. [R and Data Science Reference] [https://github.com/lgreski/datasciencectacontent], last accessed 03/15/2016
+2. [Survival Guied to Data Science with R] [http://togaware.com/onepager/], last accessed 03/15/2015
+3. [Presentation by M. H. Nierhoff] [https://rpubs.com/nierhoff/cdsc], last accessed 03/15/2015
 

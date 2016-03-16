@@ -1,4 +1,5 @@
-setwd('C:\\Users\\db345c\\Desktop\\Data Science Capstone\\Algorythm_Modeling')
+# setwd('C:\\Users\\db345c\\Desktop\\Data Science Capstone\\Algorythm_Modeling')
+setwd('C:/Users/Aleksey/Documents/School/coursera/Data Science Capstone/Final_Project/2. Algorithm and Modeling')
 
 load("./data/dataframes.RData")
 
@@ -57,6 +58,8 @@ getPrediction <- function(phrase) {
         df$prediction <- as.character(df$prediction)
     }
     
+    print(df)
+    
     return(df[1,]$prediction)
     
 }
@@ -90,5 +93,5 @@ getPrediction3 <- function(in1, in2, in3) {
 
 
 ##### TEST #####
-result <- getPrediction("it is a good thing for you to have a")
+result <- getPrediction("soda")
 result
