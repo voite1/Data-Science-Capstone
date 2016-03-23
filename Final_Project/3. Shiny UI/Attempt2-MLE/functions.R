@@ -94,19 +94,16 @@ getPrediction2 <- function(in1, in2) {
     if(length(df2$w1) < 1) {
         df2 <- getPrediction1(in2)
     } else {
-      
       # calculate MLE
       names(df2)[names(df2)=="rank"] <- "numerator"
-      print(head(df2))
       
+      # merge data frames
       df2 <- merge(df2, unigrams, by.x="w3", by.y="w1")
       
-      
-      # rename rank from bigrams to denominator
+      # rename rank to denominator
       names(df2)[names(df2)=="rank"] <- "denominator"
       names(df2)[names(df2)=="w3"] <- "prediction"
       
-
       # calculate rank
       df2$rank <- df2$numerator / df2$denominator
       
@@ -121,15 +118,13 @@ getPrediction2 <- function(in1, in2) {
 getPrediction3 <- function(in1, in2, in3) {
     df3 <- subset(quadgrams, w1 == in1 & w2 == in2 & w3 == in3)
     
-    print(head(df3))
-    
-    df3 <- head(df3[order(-df3$rank),])
     if(length(df3$w1) < 1) {
         df3 <- getPrediction2(in2, in3)
     } else {
       # calculate MLE
       names(df3)[names(df3)=="rank"] <- "numerator"
       
+      # Merge data frames
       df3 <- merge(df3, unigrams, by.x="w4", by.y="w1")
       
       # rename rank from bigrams to denominator
