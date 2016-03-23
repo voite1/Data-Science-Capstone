@@ -1,4 +1,5 @@
-setwd('C:\\Users\\db345c\\Desktop\\Data Science Capstone\\Algorythm_Modeling')
+#setwd('C:\\Users\\db345c\\Desktop\\Data Science Capstone\\Algorythm_Modeling')
+setwd('C:/Users/Aleksey/Documents/School/coursera/Data Science Capstone/Final_Project/3. Shiny UI/Attempt2-MLE')
 
 load("./data/dataframes.RData")
 
@@ -44,8 +45,6 @@ getPrediction <- function(phrase) {
         # extract last three words
         tmp <- tail(input, 3)
         
-        #print(tmp)
-        
         # search quadgrams
         df <- getPrediction3(tmp[1], tmp[2], tmp[3])
 
@@ -64,16 +63,56 @@ getPrediction <- function(phrase) {
 # Get prediction for single word
 getPrediction1 <- function(in1) {
     df1 <- subset(bigrams, w1 == in1)
-    df1 <- head(df1[order(-df1$rank),])
+    
+    # if there are hits
+    if(length(df1$w1) > 0) {
+      # Calculate MLE
+      # rename rank field to numerator
+      names(df1)[names(df1)=="rank"] <- "numerator"
+      
+      # merge data frames on the second word of the bigram and a signle word of unigram
+      df1 <- merge(df1, unigrams, by.x="w2", by.y="w1")
+      
+      # rename rank from bigrams to denominator
+      names(df1)[names(df1)=="rank"] <- "denominator"
+      names(df1)[names(df1)=="w2"] <- "prediction"
+      
+      # calculate rank
+      df1$rank <- df1$numerator / df1$denominator
+      
+      # sort by rank descending and take only first 6 rows
+      df1 <- head(df1[order(-df1$rank),])
+    }
+    
     return(df1)
 }
 
 # Get prediction for two words
 getPrediction2 <- function(in1, in2) {
     df2 <- subset(trigrams, w1 == in1 & w2 == in2)
-    df2 <- head(df2[order(-df2$rank),])
+    
     if(length(df2$w1) < 1) {
         df2 <- getPrediction1(in2)
+    } else {
+      
+      # calculate MLE
+      names(df2)[names(df2)=="rank"] <- "numerator"
+      print(head(df2))
+      
+      df2 <- merge(df2, unigrams, by.x="w3", by.y="w1")
+      
+      
+      # rename rank from bigrams to denominator
+      names(df2)[names(df2)=="rank"] <- "denominator"
+      names(df2)[names(df2)=="w3"] <- "prediction"
+      
+
+      # calculate rank
+      df2$rank <- df2$numerator / df2$denominator
+      
+      # sort by rank descending and take only first 6 rows
+      df2 <- head(df2[order(-df2$rank),])
+      
     }
     return(df2)
 }
@@ -81,14 +120,33 @@ getPrediction2 <- function(in1, in2) {
 # Get prediction for three words
 getPrediction3 <- function(in1, in2, in3) {
     df3 <- subset(quadgrams, w1 == in1 & w2 == in2 & w3 == in3)
+    
+    print(head(df3))
+    
     df3 <- head(df3[order(-df3$rank),])
     if(length(df3$w1) < 1) {
         df3 <- getPrediction2(in2, in3)
+    } else {
+      # calculate MLE
+      names(df3)[names(df3)=="rank"] <- "numerator"
+      
+      df3 <- merge(df3, unigrams, by.x="w4", by.y="w1")
+      
+      # rename rank from bigrams to denominator
+      names(df3)[names(df3)=="rank"] <- "denominator"
+      names(df3)[names(df3)=="w4"] <- "prediction"
+      
+      # calculate rank
+      df3$rank <- df3$numerator / df3$denominator
+      
+      # sort by rank descending and take only first 6 rows
+      df3 <- head(df3[order(-df3$rank),])
     }
     return(df3)
 }
 
 
 ##### TEST #####
-result <- getPrediction("it is a good thing for you to have a")
+result <- getPrediction("to lose weight")
 result
+
