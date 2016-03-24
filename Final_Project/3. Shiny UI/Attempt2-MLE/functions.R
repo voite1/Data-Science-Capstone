@@ -142,6 +142,6 @@ getPrediction3 <- function(in1, in2, in3) {
 
 
 ##### TEST #####
-result <- getPrediction("to lose weight")
+result <- getPrediction("to lose i")
 result
 

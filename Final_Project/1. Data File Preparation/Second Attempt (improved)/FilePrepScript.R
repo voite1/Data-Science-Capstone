@@ -1,4 +1,4 @@
-setwd('C:\\Users\\db345c\\Desktop\\Data Science Capstone\\Data_File_Prep')
+setwd('C:\\Users\\Aleksey\\Documents\\School\\coursera\\Data Science Capstone\\Final_Project\\1. Data File Preparation\\Second Attempt (improved)')
 
 ############## Download and unzip files ##########################
 
@@ -60,15 +60,15 @@ twitter <- iconv(twitter, from = "latin1", to = "ASCII")
 library(caTools, quietly=TRUE)
 
 # get 10% sample of blogs
-indx <- sample.split(blogs, SplitRatio= .17)
+indx <- sample.split(blogs, SplitRatio= .15)
 blogs <- blogs[indx]
 
 # get 10% sample of news
-indx <- sample.split(news, SplitRatio = .17)
+indx <- sample.split(news, SplitRatio = .15)
 news <- news[indx]
 
 # get 10% sample of twitter
-indx <- sample.split(twitter, SplitRatio= .17)
+indx <- sample.split(twitter, SplitRatio= .15)
 twitter <- twitter[indx]
 
 
