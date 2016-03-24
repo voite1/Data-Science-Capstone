@@ -1,37 +1,40 @@
-Capstone: Word Prediction 
+Coursera Data Science Capstone Project
 ========================================================
 author: A. Kramer
-date: March 3rd, 2016
+date: March 23rd, 2016
 
-First Slide
+Final project is here: [Shiny Application](www.yahoo.com)
+
+Summary
 ========================================================
 
-For more details on authoring R presentations click the
-**Help** button on the toolbar.
+The Data Science Capstone course offered by Coursera in partnership with John Hopkins University partnered with the SwiftKey, a company that developed one of the most popular word predicting mobile keyboards.
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
+This presentation is developed as part of the Data Science Capstone project. The primary object of the project is to build text predicting Shiny application similar in word predicting functionality to that developed by SwiftKey keyboard.
 
-Slide With Code
+For this project, the only meansdof delivering develped product is to build a Shiny application that is capable of predicting next word. 
+
+Methods & Models
 ========================================================
 
+The HC Corpus was created using 15% sample of the data supplied.  The HC Corpous was cleand: all wards converted to lower cas, punctuation removed, links removed, numbers removed, and white space compressed. This HC Corpus was used to generate n-grams.
 
-```r
-summary(cars)
-```
+Unigrams, bigrams, trigrams, and quadgrams were generated and coverted to frequency dictionaries (data frames) of n-grams, containing n-grams and counts of occurances of each n-gram in the Corpus.
 
-```
-     speed           dist       
- Min.   : 4.0   Min.   :  2.00  
- 1st Qu.:12.0   1st Qu.: 26.00  
- Median :15.0   Median : 36.00  
- Mean   :15.4   Mean   : 42.98  
- 3rd Qu.:19.0   3rd Qu.: 56.00  
- Max.   :25.0   Max.   :120.00  
-```
+The data frames are used to calculate Maximum Likelihood Estimation for the next predicted word based on the text user suppled as input. 
 
-Slide With Plot
+Application
 ========================================================
+The application provides a text box to input the text and display prediction as shown below.
 
-![plot of chunk unnamed-chunk-2](CapstonePresentation-figure/unnamed-chunk-2-1.png)
+![Screenshot of the application](image.png) 
+
+References
+========================================================
+1. [R and Data Science Reference] (https://github.com/lgreski/datasciencectacontent), accessed 03/23/2016
+2. [Survival Guied to Data Science with R] (http://togaware.com/onepager/), accessed 03/23/2015
+3. [Presentation by M. H. Nierhoff] (https://rpubs.com/nierhoff/cdsc), accessed 03/23/2015
+4. [N-Gram tokenizer usage](https://gist.github.com/benmarwick/5370329), accessed 03/23/2015
+5. [SwiftKey Word Predicting App](http://54.201.18.67:3838/SwiftKey-Language-Modelling/), accessed 03/23/2015
+6. [Word Prediction Presentation](https://www.cs.cornell.edu/courses/CS4740/2012sp/lectures/smoothing+backoff-1-4pp.pdf), accessed 03/23/2015 
+7. [RStudio Cheat Sheets](https://www.rstudio.com/resources/cheatsheets/), accessed 03/23/2015
