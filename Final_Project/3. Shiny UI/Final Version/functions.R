@@ -1,5 +1,5 @@
-setwd('C:\\Users\\db345c\\Desktop\\Data Science Capstone\\Shiny App')
-# setwd('C:/Users/Aleksey/Documents/School/coursera/Data Science Capstone/Final_Project/3. Shiny UI/Attempt2-MLE')
+# setwd('C:\\Users\\db345c\\Desktop\\Data Science Capstone\\Shiny App')
+setwd('C:/Users/Aleksey/Documents/School/coursera/Data Science Capstone/Final_Project/3. Shiny UI/Final Version')
 
 load("./data/dataframes.RData")
 
@@ -142,7 +142,7 @@ getPrediction3 <- function(in1, in2, in3) {
 
 
 ##### TEST #####
-result <- getPrediction("to lose i")
-result
+# result <- getPrediction("to lose i")
+# result
 
 
