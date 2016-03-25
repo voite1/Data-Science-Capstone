@@ -4,7 +4,7 @@ author: Aleksey Kramer
 date: March 24th, 2016
 transition: rotate 
 
-Final project is here: [Shiny Application](www.yahoo.com)
+Final project is here: [Final Project](https://voitel.shinyapps.io/WordPredict/)
 
 Summary 
 ========================================================
